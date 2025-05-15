@@ -1,0 +1,123 @@
+.page.bus-tracking {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  font-family: 'Montserrat', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filters label {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+
+.filters select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  font-family: 'Montserrat',sans-serif;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+
+}
+.transactions-table th{
+    color: #000;
+}
+.transactions-table th,
+.transactions-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.transactions-table th {
+  background-color: #f2f2f2;
+}
+
+.earnings-stats {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.earnings-stats .stat {
+  background: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  text-align: center;
+}
+
+.charts {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.chart {
+  flex: 1;
+  min-width: 300px;
+}
+
+.map-container {
+  height: 400px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bus-tracking h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.earnings-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat h4 {
+  font-size: 1.2rem;
+}
+
+.stat p {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.charts {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.chart {
+  width: 45%;
+}
+
+.map-container {
+  margin-top: 20px;
+}

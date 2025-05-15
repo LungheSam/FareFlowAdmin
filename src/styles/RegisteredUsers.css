@@ -1,0 +1,158 @@
+/* RegisteredUsers.css */
+
+.page {
+  padding: 2rem;
+  font-family: 'Montserrat', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.registered-users h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.registered-users input[type="text"] {
+  width: 90%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  transition: border 0.3s;
+}
+.registered-users input::placeholder{
+    font-family: 'Montserrat';
+}
+.registered-users input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+}
+
+th {
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tbody tr:hover {
+  background-color: #e9f5ff;
+  transition: background-color 0.2s;
+}
+
+td {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+td button, .btn-cancel, .btn-save {
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+td button:hover {
+  opacity: 0.9;
+}
+
+td button:nth-child(1) {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+td button:nth-child(2) {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+td button:nth-child(3) {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    margin-bottom: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  td:last-child {
+    border-bottom: none;
+  }
+}
+
+
+.edit-modal {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.edit-form input {
+  flex: 1 1 45%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-cancel, .btn-save{
+    margin-top: 1rem;
+    color: #fff;
+}
+.btn-save{
+    background-color: green;
+}
+.btn-cancel{
+    background-color: #dc3545;
+}

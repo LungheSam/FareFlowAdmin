@@ -1,0 +1,73 @@
+.expenses-analysis {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: red;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  font-family: 'Montserrat', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.expenses-analysis h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* Cards for Expenses Information */
+.expenses-analysis .cards {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.expenses-analysis .card {
+  background: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  text-align: center;
+}
+
+.expenses-analysis .card h4 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.expenses-analysis .card p {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Chart Containers */
+.expenses-analysis .charts {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.expenses-analysis .chart {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Transactions Table */
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+}
+
+.transactions-table th,
+.transactions-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.transactions-table th {
+  background-color: #f2f2f2;
+}
+
+.transactions-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
