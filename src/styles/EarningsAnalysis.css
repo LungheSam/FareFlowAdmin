@@ -1,26 +1,26 @@
-.expenses-analysis {
+.earnings-analysis {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
-  background: red;
+  background: #fff;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   font-family: 'Montserrat', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.expenses-analysis h2 {
+.earnings-analysis h2 {
   font-size: 2rem;
   margin-bottom: 20px;
 }
 
 /* Cards for Expenses Information */
-.expenses-analysis .cards {
+.earnings-analysis .cards {
   display: flex;
   gap: 2rem;
   margin-bottom: 2rem;
 }
 
-.expenses-analysis .card {
+.earnings-analysis .card {
   background: #ecf0f1;
   padding: 1rem;
   border-radius: 8px;
@@ -28,24 +28,24 @@
   text-align: center;
 }
 
-.expenses-analysis .card h4 {
+.earnings-analysis .card h4 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
 
-.expenses-analysis .card p {
+.earnings-analysis .card p {
   font-size: 1.5rem;
   font-weight: bold;
 }
 
 /* Chart Containers */
-.expenses-analysis .charts {
+.earnings-analysis .charts {
   display: flex;
   gap: 2rem;
   margin-bottom: 2rem;
 }
 
-.expenses-analysis .chart {
+.earnings-analysis .chart {
   flex: 1;
   min-width: 300px;
 }

@@ -1,64 +1,103 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { LineChart, Line } from 'recharts';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line
+} from 'recharts';
 import '../styles/BusTracking.css';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import BusMap from '../components/BusMap'; // <-- import map component
 
 const BusTracking = () => {
-  const [selectedBus, setSelectedBus] = useState('');
+  const [selectedBus, setSelectedBus] = useState('UAZ-123');
   const [transactions, setTransactions] = useState([]);
   const [busList, setBusList] = useState([]);
-  const [busLocation, setBusLocation] = useState({ lat: 0, lng: 0 });
-  const [dateFilter, setDateFilter] = useState('today');
-  const [earningsStats, setEarningsStats] = useState({
-    today: 50000,
-    lastWeek: 300000,
-    lastMonth: 1200000,
-  });
-  const [weeklyData, setWeeklyData] = useState([
-    { date: '2025-05-07', amount: 20000 },
-    { date: '2025-05-08', amount: 25000 },
-    { date: '2025-05-09', amount: 18000 },
-    { date: '2025-05-10', amount: 30000 },
-    { date: '2025-05-11', amount: 15000 },
-    { date: '2025-05-12', amount: 22000 },
-    { date: '2025-05-13', amount: 24000 },
-  ]);
-  const [monthlyData, setMonthlyData] = useState([
-    { month: 'Jan', amount: 100000 },
-    { month: 'Feb', amount: 120000 },
-    { month: 'Mar', amount: 150000 },
-    { month: 'Apr', amount: 130000 },
-    { month: 'May', amount: 140000 },
-  ]);
+  const [earningsStats, setEarningsStats] = useState({ today: 0, lastWeek: 0, lastMonth: 0 });
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
-    // Dummy bus data
-    setBusList([
-      { id: 'bus1', name: 'Bus 1' },
-      { id: 'bus2', name: 'Bus 2' },
-      { id: 'bus3', name: 'Bus 3' },
-    ]);
+    const unsubscribe = onSnapshot(collection(db, 'buses'), snapshot => {
+      const buses = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setBusList(buses);
+    });
 
-    // Dummy bus location (latitude and longitude for a city center)
-    setBusLocation({ lat: 0.3476, lng: 32.5825 });
-    
-    // Dummy transactions (mock data for table)
-    setTransactions([
-      { cardUID: '1234', passengerName: 'John Doe', amount: 5000, timestamp: '2025-05-12T10:30:00Z' },
-      { cardUID: '5678', passengerName: 'Jane Smith', amount: 3000, timestamp: '2025-05-12T11:00:00Z' },
-      { cardUID: '9101', passengerName: 'Samuel N.', amount: 4500, timestamp: '2025-05-12T12:15:00Z' },
-    ]);
+    return () => unsubscribe();
   }, []);
 
-  const handleBusChange = (e) => {
-    setSelectedBus(e.target.value);
-  };
+  useEffect(() => {
+    if (!selectedBus) {
+      setTransactions([]);
+      return;
+    }
 
-  const handleDateFilterChange = (e) => {
-    setDateFilter(e.target.value);
-  };
+    const transactionsQuery = query(
+      collection(db, 'transactions'),
+      where('busPlateNumber', '==', selectedBus)
+    );
+
+    const unsubscribeTxns = onSnapshot(transactionsQuery, snapshot => {
+      const txns = snapshot.docs.map(doc => doc.data());
+      txns.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+      setTransactions(txns);
+    });
+
+    return () => unsubscribeTxns();
+  }, [selectedBus]);
+
+  useEffect(() => {
+    if (!transactions.length) {
+      setEarningsStats({ today: 0, lastWeek: 0, lastMonth: 0 });
+      setWeeklyData([]);
+      setMonthlyData([]);
+      return;
+    }
+
+    const now = new Date();
+    const todayStr = now.toDateString();
+    const lastWeekDate = new Date(now);
+    lastWeekDate.setDate(now.getDate() - 7);
+    const lastMonthDate = new Date(now);
+    lastMonthDate.setMonth(now.getMonth() - 1);
+
+    let todayTotal = 0;
+    let weekTotal = 0;
+    let monthTotal = 0;
+
+    const weekly = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      weekly[d.toISOString().split('T')[0]] = 0;
+    }
+
+    const monthly = {};
+
+    transactions.forEach(txn => {
+      const txnDate = txn.timestamp.toDate();
+      const txnDateStr = txnDate.toISOString().split('T')[0];
+      const monthStr = txnDate.toLocaleString('default', { month: 'short' });
+
+      if (txnDate.toDateString() === todayStr) todayTotal += txn.amount;
+      if (txnDate >= lastWeekDate) weekTotal += txn.amount;
+      if (txnDate >= lastMonthDate) monthTotal += txn.amount;
+
+      if (weekly[txnDateStr] !== undefined) weekly[txnDateStr] += txn.amount;
+      monthly[monthStr] = (monthly[monthStr] || 0) + txn.amount;
+    });
+
+    setEarningsStats({
+      today: todayTotal,
+      lastWeek: weekTotal,
+      lastMonth: monthTotal,
+    });
+
+    setWeeklyData(Object.entries(weekly).map(([date, amount]) => ({ date, amount })));
+    setMonthlyData(Object.entries(monthly).map(([month, amount]) => ({ month, amount })));
+  }, [transactions]);
 
   return (
     <section className="page bus-tracking">
@@ -66,59 +105,33 @@ const BusTracking = () => {
 
       <div className="filters">
         <label htmlFor="busSelect">Select Bus:</label>
-        <select id="busSelect" value={selectedBus} onChange={handleBusChange}>
+        <select
+          id="busSelect"
+          value={selectedBus}
+          onChange={e => setSelectedBus(e.target.value)}
+        >
           <option value="">--Select Bus--</option>
-          {busList.map((bus) => (
+          {busList.map(bus => (
             <option key={bus.id} value={bus.id}>
-              {bus.name}
+              {bus.name || bus.plateNumber || bus.id}
             </option>
           ))}
         </select>
-
-        <label htmlFor="dateFilter">Date:</label>
-        <select id="dateFilter" value={dateFilter} onChange={handleDateFilterChange}>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="last7days">Last 7 Days</option>
-          <option value="last30days">Last 30 Days</option>
-        </select>
       </div>
-
-      <h3>Transactions</h3>
-      <table className="transactions-table">
-        <thead>
-          <tr>
-            <th>Card UID</th>
-            <th>Passenger Name</th>
-            <th>Amount (UGX)</th>
-            <th>Timestamp</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((txn, index) => (
-            <tr key={index}>
-              <td>{txn.cardUID}</td>
-              <td>{txn.passengerName}</td>
-              <td>{txn.amount}</td>
-              <td>{new Date(txn.timestamp).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
       <h3>Earnings Statistics</h3>
       <div className="earnings-stats">
         <div className="stat">
           <h4>Today</h4>
-          <p>{earningsStats.today} UGX</p>
+          <p>{earningsStats.today.toLocaleString()} UGX</p>
         </div>
         <div className="stat">
           <h4>Last Week</h4>
-          <p>{earningsStats.lastWeek} UGX</p>
+          <p>{earningsStats.lastWeek.toLocaleString()} UGX</p>
         </div>
         <div className="stat">
           <h4>Last Month</h4>
-          <p>{earningsStats.lastMonth} UGX</p>
+          <p>{earningsStats.lastMonth.toLocaleString()} UGX</p>
         </div>
       </div>
 
@@ -127,10 +140,7 @@ const BusTracking = () => {
         <div className="chart">
           <h4>Past 7 Days</h4>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={weeklyData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
+            <BarChart data={weeklyData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
@@ -140,6 +150,7 @@ const BusTracking = () => {
             </BarChart>
           </ResponsiveContainer>
         </div>
+
         <div className="chart">
           <h4>Last 12 Months</h4>
           <ResponsiveContainer width="100%" height={300}>
@@ -154,19 +165,31 @@ const BusTracking = () => {
           </ResponsiveContainer>
         </div>
       </div>
-
       <h3>Current Bus Location</h3>
-      <div className="map-container">
-        <MapContainer center={[busLocation.lat, busLocation.lng]} zoom={13} style={{ height: '400px', width: '100%' }}>
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[busLocation.lat, busLocation.lng]}>
-            <Popup>Bus Current Location</Popup>
-          </Marker>
-        </MapContainer>
-      </div>
+      <BusMap busId={selectedBus} />
+      <h3>Transactions</h3>
+      <table className="transactions-table">
+        <thead>
+          <tr>
+            <th>Card UID</th>
+            <th>Passenger Name</th>
+            <th>Amount (UGX)</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((txn, idx) => (
+            <tr key={idx}>
+              <td>{txn.cardUID}</td>
+              <td>{txn.passengerName}</td>
+              <td>{txn.amount.toLocaleString()}</td>
+              <td>{txn.timestamp.toDate().toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      
     </section>
   );
 };

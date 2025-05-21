@@ -24,6 +24,7 @@ const UserRegistration = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, email, phone, cardUID, password: cardUID }),
       });
+      
 
       const userCredential = await createUserWithEmailAndPassword(auth, email, cardUID);
       const user = userCredential.user;
