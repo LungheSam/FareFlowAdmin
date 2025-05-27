@@ -12,33 +12,74 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+  // const handleSubmit = async (e) => {
 
-    try {
-      // 1. Authenticate user
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // 2. Check admin status in Firestore
-      const userDoc = await getDoc(doc(db, 'admins', userCredential.user.uid));
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   setError('');
+
+  //   try {
+  //     // 1. Authenticate user
+  //     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  //     // 2. Check admin status in Firestore
+  //     const userDoc = await getDoc(doc(db, 'admins', userCredential.user.uid));
       
-      if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-        await auth.signOut(); // Immediately log out non-admin users
-        throw new Error('Access denied. Admin privileges required.');
-      }
+  //     if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+  //       await auth.signOut(); // Immediately log out non-admin users
+  //       throw new Error('Access denied. Admin privileges required.');
+  //     }
    
-      // 3. Redirect to admin dashboard
-      navigate('/');
-    } catch (error) {
-      console.error('Login error:', error);
-      setError(getErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     // 3. Redirect to admin dashboard
+  //     navigate('/');
+  //   } catch (error) {
+  //     console.error('Login error:', error);
+  //     setError(getErrorMessage(error));
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   // Better error messages for users
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
+
+  try {
+    // Step 1: Sign in with email & password
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    // Step 2: Check if the user is an admin
+    const adminDocRef = doc(db, 'admins', uid);
+    const adminDocSnap = await getDoc(adminDocRef);
+
+    if (adminDocSnap.exists() && adminDocSnap.data().role === 'admin') {
+      navigate('/'); // Admin dashboard
+      return;
+    }
+
+    // // Step 3: If not admin, check if the user is a driver
+    // const driverDocRef = doc(db, 'drivers', uid);
+    // const driverDocSnap = await getDoc(driverDocRef);
+
+    // if (driverDocSnap.exists() && driverDocSnap.data().role === 'driver') {
+    //   navigate('/driver-dashboard'); // Driver dashboard
+    //   return;
+    // }
+
+    // Step 4: If neither admin nor driver, deny access
+    await auth.signOut();
+    throw new Error('Access denied. Only admins and drivers are allowed.');
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    setError(getErrorMessage(error));
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   const getErrorMessage = (error) => {
     switch (error.code) {
       case 'auth/invalid-email':
