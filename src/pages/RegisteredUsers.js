@@ -140,7 +140,7 @@ const RegisteredUsers = () => {
                 <button onClick={() => handleBlock(user.id, user.blocked)}>
                   {user.blocked ? 'Unblock' : 'Block'}
                 </button>
-                <button onClick={() => handleDelete(user.id)}>Delete</button>
+                <button style={{marginTop:'5px'}} onClick={() => handleDelete(user.id)}>Delete</button>
               </td>
             </tr>
           ))}

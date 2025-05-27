@@ -49,7 +49,6 @@ const AdminLayout = () => {
           <Link to="/earningsanalysis" className="nav-link">
             < i className='bx  bx-pie-chart'  ></i>  Earnings Analysis
           </Link>
-          {/* Added logout link - matches existing sidebar style */}
           <button onClick={handleLogout} className="nav-link logout-link">
             <i className='bx bx-log-out'></i>Logout
           </button>

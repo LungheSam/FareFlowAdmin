@@ -56,8 +56,10 @@
     width: 100%;
     text-align: left;
     color: #fff;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 18px;
+    font-weight: bold;
+    background-color: rgb(129, 0, 0);
     padding: 15px;
     display: flex;
     align-items: center;
