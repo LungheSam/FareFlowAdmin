@@ -19,7 +19,7 @@ const UserRegistration = () => {
 
     try {
       // Backend message (skip in example)
-      await fetch('http://localhost:5000/send-welcome-message', {
+      await fetch('https://fareflow-server.onrender.com/send-welcome-message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, email, phone, cardUID, password: cardUID }),
