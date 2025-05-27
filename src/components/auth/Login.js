@@ -22,11 +22,12 @@ const Login = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       // 2. Check admin status in Firestore
       const userDoc = await getDoc(doc(db, 'admins', userCredential.user.uid));
+      
       if (!userDoc.exists() || userDoc.data().role !== 'admin') {
         await auth.signOut(); // Immediately log out non-admin users
         throw new Error('Access denied. Admin privileges required.');
       }
-
+   
       // 3. Redirect to admin dashboard
       navigate('/');
     } catch (error) {

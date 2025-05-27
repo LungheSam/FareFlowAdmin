@@ -18,13 +18,6 @@ const UserRegistration = () => {
     e.preventDefault();
 
     try {
-      // Backend message (skip in example)
-      await fetch('https://fareflow-server.onrender.com/send-welcome-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, email, phone, cardUID, password: cardUID }),
-      });
-      
 
       const userCredential = await createUserWithEmailAndPassword(auth, email, cardUID);
       const user = userCredential.user;
@@ -42,7 +35,13 @@ const UserRegistration = () => {
         userData.cardUID = cardUID;
         userData.balance = parseFloat(balance);
         await setDoc(doc(db, 'users', cardUID), userData);
+        await fetch('https://fareflow-server.onrender.com/send-welcome-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, email, phone, cardUID, password: cardUID }),
+      });
       } else {
+        userData.role="driver";
         await setDoc(doc(db, 'drivers', user.uid), userData);
       }
 
