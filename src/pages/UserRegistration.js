@@ -13,13 +13,15 @@
 //   const [cardUID, setCardUID] = useState('');
 //   const [balance, setBalance] = useState('');
 //   const [phone, setPhone] = useState('');
+//   const [licenseNumber, setLicenseNumber] = useState('');
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 
 //     try {
+//       let password = role === 'passenger' ? cardUID : licenseNumber;
 
-//       const userCredential = await createUserWithEmailAndPassword(auth, email, cardUID);
+//       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 //       const user = userCredential.user;
 
 //       const userData = {
@@ -34,15 +36,34 @@
 //       if (role === 'passenger') {
 //         userData.cardUID = cardUID;
 //         userData.balance = parseFloat(balance);
+
 //         await setDoc(doc(db, 'users', cardUID), userData);
+
+//         // Send SMS to passenger
 //         await fetch('https://fareflow-server.onrender.com/send-welcome-message', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ firstName, email, phone, cardUID, password: cardUID }),
-//       });
+//           method: 'POST',
+//           headers: { 'Content-Type': 'application/json' },
+//           body: JSON.stringify({
+//             email, phone, firstName, lastName, cardUID, password: cardUID,
+//           }),
+//         });
 //       } else {
-//         userData.role="driver";
+//         userData.licenseNumber = licenseNumber;
+
 //         await setDoc(doc(db, 'drivers', user.uid), userData);
+
+//         // Send SMS to driver
+//         await fetch('https://fareflow-server.onrender.com/sms-welcome-message-driver', {
+//           method: 'POST',
+//           headers: { 'Content-Type': 'application/json' },
+//           body: JSON.stringify({
+//             firstName,
+//             email,
+//             phone,
+//             licenseNumber,
+//             password: licenseNumber,
+//           }),
+//         });
 //       }
 
 //       alert(`${role === 'driver' ? 'Driver' : 'Passenger'} registered successfully!`);
@@ -54,7 +75,9 @@
 //       setCardUID('');
 //       setBalance('');
 //       setPhone('');
+//       setLicenseNumber('');
 //       setRole('passenger');
+
 //     } catch (error) {
 //       console.error('Registration error:', error);
 //       alert('Error: ' + error.message);
@@ -114,29 +137,42 @@
 //           />
 //         </div>
 
-//         {role === 'passenger' && (
-//           <div className="form-row">
-//             <div className="form-group">
-//               <label htmlFor="cardUID">Card UID:</label>
-//               <input
-//                 type="text"
-//                 id="cardUID"
-//                 value={cardUID}
-//                 onChange={(e) => setCardUID(e.target.value)}
-//                 required
-//               />
-//             </div>
+//         {role === 'passenger' ? (
+//           <>
+//             <div className="form-row">
+//               <div className="form-group">
+//                 <label htmlFor="cardUID">Card UID:</label>
+//                 <input
+//                   type="text"
+//                   id="cardUID"
+//                   value={cardUID}
+//                   onChange={(e) => setCardUID(e.target.value)}
+//                   required
+//                 />
+//               </div>
 
-//             <div className="form-group">
-//               <label htmlFor="balance">Initial Balance (UGX):</label>
-//               <input
-//                 type="number"
-//                 id="balance"
-//                 value={balance}
-//                 onChange={(e) => setBalance(e.target.value)}
-//                 required
-//               />
+//               <div className="form-group">
+//                 <label htmlFor="balance">Initial Balance (UGX):</label>
+//                 <input
+//                   type="number"
+//                   id="balance"
+//                   value={balance}
+//                   onChange={(e) => setBalance(e.target.value)}
+//                   required
+//                 />
+//               </div>
 //             </div>
+//           </>
+//         ) : (
+//           <div className="form-group">
+//             <label htmlFor="licenseNumber">License Number:</label>
+//             <input
+//               type="text"
+//               id="licenseNumber"
+//               value={licenseNumber}
+//               onChange={(e) => setLicenseNumber(e.target.value)}
+//               required
+//             />
 //           </div>
 //         )}
 
@@ -160,6 +196,7 @@
 // };
 
 // export default UserRegistration;
+
 import React, { useState } from 'react';
 import '../styles/UserRegistration.css';
 import { motion } from 'framer-motion';
@@ -176,13 +213,14 @@ const UserRegistration = () => {
   const [balance, setBalance] = useState('');
   const [phone, setPhone] = useState('');
   const [licenseNumber, setLicenseNumber] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      let password = role === 'passenger' ? cardUID : licenseNumber;
-
+      const password = role === 'passenger' ? cardUID : licenseNumber;
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -194,32 +232,32 @@ const UserRegistration = () => {
         role,
         blocked: false,
       };
-
+      console.log(userData);
       if (role === 'passenger') {
         userData.cardUID = cardUID;
         userData.balance = parseFloat(balance);
 
         await setDoc(doc(db, 'users', cardUID), userData);
-
-        // Send SMS to passenger
+        console.log(userData)
         await fetch('https://fareflow-server.onrender.com/send-welcome-message', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            firstName,
             email,
             phone,
+            firstName,
+            lastName,
             cardUID,
             password: cardUID,
           }),
         });
+        console.log("Request Sent....")
       } else {
         userData.licenseNumber = licenseNumber;
-
+        console.log(userData)
         await setDoc(doc(db, 'drivers', user.uid), userData);
 
-        // Send SMS to driver
-        await fetch('https://fareflow-server.onrender.com/sms-welcome-message-driver', {
+        await fetch('https://fareflow-server.onrender.com/send-welcome-message-driver', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -230,11 +268,12 @@ const UserRegistration = () => {
             password: licenseNumber,
           }),
         });
+        console.log("Request Sent....")
       }
 
       alert(`${role === 'driver' ? 'Driver' : 'Passenger'} registered successfully!`);
 
-      // Reset
+      // Reset form
       setFirstName('');
       setLastName('');
       setEmail('');
@@ -243,10 +282,11 @@ const UserRegistration = () => {
       setPhone('');
       setLicenseNumber('');
       setRole('passenger');
-
     } catch (error) {
       console.error('Registration error:', error);
       alert('Error: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -262,7 +302,12 @@ const UserRegistration = () => {
       <form className="register-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="role">Registering As:</label>
-          <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+          <select
+            id="role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            disabled={loading}
+          >
             <option value="passenger">Passenger</option>
             <option value="driver">Driver</option>
           </select>
@@ -277,6 +322,7 @@ const UserRegistration = () => {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
@@ -288,6 +334,7 @@ const UserRegistration = () => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
         </div>
@@ -300,35 +347,36 @@ const UserRegistration = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
 
         {role === 'passenger' ? (
-          <>
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="cardUID">Card UID:</label>
-                <input
-                  type="text"
-                  id="cardUID"
-                  value={cardUID}
-                  onChange={(e) => setCardUID(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="balance">Initial Balance (UGX):</label>
-                <input
-                  type="number"
-                  id="balance"
-                  value={balance}
-                  onChange={(e) => setBalance(e.target.value)}
-                  required
-                />
-              </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="cardUID">Card UID:</label>
+              <input
+                type="text"
+                id="cardUID"
+                value={cardUID}
+                onChange={(e) => setCardUID(e.target.value)}
+                required
+                disabled={loading}
+              />
             </div>
-          </>
+
+            <div className="form-group">
+              <label htmlFor="balance">Initial Balance (UGX):</label>
+              <input
+                type="number"
+                id="balance"
+                value={balance}
+                onChange={(e) => setBalance(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+          </div>
         ) : (
           <div className="form-group">
             <label htmlFor="licenseNumber">License Number:</label>
@@ -338,6 +386,7 @@ const UserRegistration = () => {
               value={licenseNumber}
               onChange={(e) => setLicenseNumber(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
         )}
@@ -350,11 +399,18 @@ const UserRegistration = () => {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
 
-        <button type="submit" className='user-registration-submit-btn'>
-          Register {role === 'driver' ? 'Driver' : 'Passenger'}
+        <button
+          type="submit"
+          className="user-registration-submit-btn"
+          disabled={loading}
+        >
+          {loading
+            ? `Registering ${role === 'driver' ? 'Driver' : 'Passenger'}...`
+            : `Register ${role === 'driver' ? 'Driver' : 'Passenger'}`}
         </button>
       </form>
     </motion.section>
@@ -362,3 +418,4 @@ const UserRegistration = () => {
 };
 
 export default UserRegistration;
+

@@ -58,17 +58,6 @@ const Login = () => {
       navigate('/'); // Admin dashboard
       return;
     }
-
-    // // Step 3: If not admin, check if the user is a driver
-    // const driverDocRef = doc(db, 'drivers', uid);
-    // const driverDocSnap = await getDoc(driverDocRef);
-
-    // if (driverDocSnap.exists() && driverDocSnap.data().role === 'driver') {
-    //   navigate('/driver-dashboard'); // Driver dashboard
-    //   return;
-    // }
-
-    // Step 4: If neither admin nor driver, deny access
     await auth.signOut();
     throw new Error('Access denied. Only admins and drivers are allowed.');
     
