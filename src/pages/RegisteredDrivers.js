@@ -116,6 +116,7 @@ const RegisteredDrivers = () => {
             <th>Last Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>License Number</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -129,6 +130,7 @@ const RegisteredDrivers = () => {
               <td>{driver.lastName}</td>
               <td>{driver.email}</td>
               <td>{driver.phone}</td>
+              <td>{driver?.licenseNumber}</td>
               <td>
                 <button onClick={() => handleEdit(driver)}>Edit</button>
                 <button onClick={() => handleBlock(driver.id, driver.blocked)}>
