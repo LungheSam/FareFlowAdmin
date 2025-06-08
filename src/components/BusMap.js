@@ -1,89 +1,3 @@
-
-// import React, { useEffect, useRef, useState } from 'react';
-// import { ref as dbRef, onValue } from 'firebase/database';
-// import { rtdb } from '../services/firebase';
-// import L from 'leaflet';
-// import 'leaflet/dist/leaflet.css';
-
-// // Fix Leaflet marker icon paths
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-//   iconUrl: require('leaflet/dist/images/marker-icon.png'),
-//   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-// });
-
-// // Create a custom bus icon
-// const createBusIcon = () => {
-//   return new L.Icon({
-//     iconUrl: 'bus.png',
-//     iconSize: [32, 32],
-//     iconAnchor: [16, 32],
-//     popupAnchor: [0, -32],
-//   });
-// };
-
-// const BusMap = ({ busId }) => {
-//   const [busLocation, setBusLocation] = useState({ lat: 0.3296928, lng: 32.5994707 });
-//   const mapRef = useRef(null);
-//   const mapContainerRef = useRef(null);
-//   const markerRef = useRef(null);
-//   const busIcon = createBusIcon();
-
-//   // Initialize map
-//   useEffect(() => {
-//     if (mapRef.current || !mapContainerRef.current) return;
-
-//     mapRef.current = L.map(mapContainerRef.current).setView([busLocation.lat, busLocation.lng], 13);
-
-//     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//       attribution: '&copy; OpenStreetMap contributors',
-//     }).addTo(mapRef.current);
-
-//     // Add initial marker
-//     markerRef.current = L.marker([busLocation.lat, busLocation.lng], { icon: busIcon })
-//       .addTo(mapRef.current)
-//       .bindPopup(busId)
-//       .openPopup();
-//   }, [busId]);
-
-//   // Realtime update location
-//   useEffect(() => {
-//     if (!busId) return;
-
-//     const locationRef = dbRef(rtdb, `buses/${busId}/location`);
-
-//     const unsubscribe = onValue(locationRef, (snapshot) => {
-//       const data = snapshot.val();
-//       if (data?.latitude && data?.longitude) {
-//         const newLocation = { lat: data.latitude, lng: data.longitude };
-//         setBusLocation(newLocation);
-
-//         if (markerRef.current) {
-//           markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
-//           markerRef.current.update();
-//         }
-
-//         if (mapRef.current) {
-//           mapRef.current.setView([newLocation.lat, newLocation.lng]);
-//         }
-//       }
-//     });
-
-//     return () => unsubscribe();
-//   }, [busId]);
-
-//   return (
-//     <div
-//       ref={mapContainerRef}
-//       style={{ height: '400px', width: '100%' }}
-//       id="bus-map"
-//     />
-//   );
-// };
-
-// export default BusMap;
-
 import React, { useEffect, useRef, useState } from 'react';
 import { ref as dbRef, onValue } from 'firebase/database';
 import { rtdb } from '../services/firebase';
@@ -126,7 +40,24 @@ const BusMap = ({ busId }) => {
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(mapRef.current);
   }, []);
+  const formatRoutePath = (route) => {
+          const departure = route?.departure || 'Unknown';
+          const destination = route?.destination || 'Unknown';
 
+          if (route?.type === 'dynamic' && route?.vias?.length) {
+            const vias = route.vias;
+            const prices = route.viaPrices || [];
+
+            const formattedVias = vias.map((via, idx) => {
+              const price = prices[idx] || 0;
+              return `${via} (${price} UGX)`;
+            }).join(' → ');
+
+            return `${departure} → ${formattedVias} → ${destination}`;
+          }
+
+          return `${departure} → ${destination}`;
+        };
   // Subscribe to bus data and update marker/map
   useEffect(() => {
     if (!busId) return;
@@ -145,12 +76,12 @@ const BusMap = ({ busId }) => {
         setBusData({
           id: busId,
           location: newLocation,
-          routeName: `${data.route?.departure || 'Unknown'} -> ${data.route?.destination || 'Unknown'}`,
+          routeName:formatRoutePath(data.route),
           departure: data.route?.departure || 'Unknown',
           destination: data.route?.destination || 'Unknown',
           fareAmount: data.route?.fareAmount || 'N/A',
         });
-
+ 
         // If marker doesn't exist, create it
         if (!markerRef.current) {
           markerRef.current = L.marker([newLocation.lat, newLocation.lng], { icon: busIcon })
@@ -162,7 +93,8 @@ const BusMap = ({ busId }) => {
         markerRef.current.setLatLng([newLocation.lat, newLocation.lng]);
         markerRef.current.setPopupContent(`
           <b>Bus ID:</b> ${busId}<br/>
-          <b>Route:</b> ${data.route?.departure || 'Unknown'} → ${data.route?.destination || 'Unknown'}<br/>
+          <b>Route Type:</b> ${data.route?.type} <br/>
+          <b>Route:</b> ${formatRoutePath(data.route)}<br/>
           <b>Fare:</b> ${data.route?.fareAmount ? `${data.route.fareAmount} UGX` : 'N/A'}<br/>
           <b>From:</b> ${data.route?.departure || 'Unknown'}<br/>
           <b>To:</b> ${data.route?.destination || 'Unknown'}

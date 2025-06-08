@@ -80,6 +80,8 @@ const Login = () => {
         return 'Invalid email or password';
       case 'auth/too-many-requests':
         return 'Too many attempts. Try again later';
+      case 'auth/invalid-credential':
+        return 'Invalid Credentials';
       default:
         return error.message || 'Login failed. Please try again';
     }
