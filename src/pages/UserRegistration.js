@@ -40,7 +40,7 @@ const UserRegistration = () => {
 
         await setDoc(doc(db, 'users', cardUID), userData);
         console.log(userData)
-        await fetch('https://fareflow-server.onrender.com/send-welcome-message', {
+        await fetch('https://fareflowserver-production.up.railway.app/send-welcome-message', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -58,7 +58,7 @@ const UserRegistration = () => {
         console.log(userData)
         await setDoc(doc(db, 'drivers', user.uid), userData);
 
-        await fetch('https://fareflow-server.onrender.com/send-welcome-message-driver', {
+        await fetch('https://fareflowserver-production.up.railway.app/send-welcome-message-driver', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
