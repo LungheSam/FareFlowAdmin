@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, #EFE3C2, #f0f4c3);
     font-family: 'Montserrat', sans-serif;
   }
   .login-title{

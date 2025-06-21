@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [scanData, setScanData] = useState([]);
   const [inactiveUsersCount, setInactiveUsersCount] = useState(0);
-
+  const [driversCount,setDriversCount]=useState(0);
 
   const COLORS = ['#00C49F', '#FF8042'];
 
@@ -44,7 +44,10 @@ useEffect(() => {
   const unsubscribeBuses = onSnapshot(collection(db, 'buses'), snapshot => {
     setBusesCount(snapshot.size);
   });
-
+  //DRIVERS COUNT
+  const unsubscribeDrivers=onSnapshot(collection(db, 'drivers'), snapshot => {
+    setDriversCount(snapshot.size);
+  });
   // TRANSACTIONS & related data
   const unsubscribeTransactions = onSnapshot(collection(db, 'transactions'), snapshot => {
     const txns = [];
@@ -137,6 +140,7 @@ useEffect(() => {
     unsubscribeUsers();
     unsubscribeBuses();
     unsubscribeTransactions();
+    unsubscribeDrivers();
   };
 }, []);
 
@@ -162,7 +166,7 @@ useEffect(() => {
 
         <motion.div className="card" whileHover={{ scale: 1.03 }}>
           <h3>Registered Drivers</h3>
-          <p><CountUp end={busesCount} duration={1.5} separator="," /></p>
+          <p><CountUp end={driversCount} duration={1.5} separator="," /></p>
         </motion.div>
 
         <motion.div className="card" whileHover={{ scale: 1.03 }}>

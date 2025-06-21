@@ -3,7 +3,7 @@
     display: flex;
     min-height: 100vh;
     font-family: 'Montserrat', sans-serif;
-    background-color: #EFE3C2; /* Light background color */
+    background: linear-gradient(135deg, #EFE3C2, #f0f4c3);
     color: #123524; /* Dark text color */
 }
 
